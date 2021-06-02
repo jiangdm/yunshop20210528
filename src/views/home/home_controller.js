@@ -180,6 +180,7 @@ export default {
       $http.get("home-page.index", {}, "加载中").then(
         response => {
           if (!response) return;
+          //console.log(JSON.stringify(response));
           if (response.result === 1) {
             this.showPage = true;
             if(this.fun.getTyep() != 5) {

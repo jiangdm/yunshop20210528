@@ -218,7 +218,7 @@
           </van-row>
           <van-row>
             <van-col :span="24" style="padding:0 0.8rem 1rem;text-align:left;">
-              赠送共建值: <span style="color:#f15353;font-weight:bold;">{{ accMul(nprice,gjzMagnification) }}</span>
+              预赠送共建值: <span style="color:#f15353;font-weight:bold;">{{ accMul(nprice,goodsInfo.cost_price ? goodsInfo.cost_price : 0,gjzMagnification) }}</span>
             </van-col>
           </van-row>
           <div @click="gotoMemberGradeList(goodsInfo.member_discount.display_page)">

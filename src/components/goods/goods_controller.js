@@ -230,7 +230,8 @@ export default {
 
       gjzMagnification:0,//共建值倍率
       gjz: 0,//共建值
-      nprice:0
+      nprice:0,
+      gjz_cal_type:0,//共建值计算方式0表示按商品价格计，1表示按商品利润计算
     };
   },
 
@@ -398,7 +399,11 @@ export default {
   methods: {
 
     //共建值计算
-    accMul(arg1,arg2){
+    accMul(arg1,cost_price,arg2){
+      if(this.gjz_cal_type == 1){
+        arg1 = arg1 - cost_price;
+      }
+      console.log(cost_price);
       var m=0,s1=arg1.toString(),s2=arg2.toString();
       try{m+=s1.split(".")[1].length;}catch(e){
         //
@@ -406,7 +411,7 @@ export default {
       try{m+=s2.split(".")[1].length;}catch(e){
         //
       }
-      return Number(s1.replace(".",""))*Number(s2.replace(".",""))/Math.pow(10,m);
+      return (Number(s1.replace(".",""))*Number(s2.replace(".",""))/Math.pow(10,m)).toFixed(2);
     },
 
     //获取共建值倍率
@@ -418,6 +423,7 @@ export default {
           console.log(response);
           if(response.result == 1 && response.data){
             _this.gjzMagnification = parseInt(response.data.beishu) * parseInt(response.data.rate) / 100 ? parseInt(response.data.beishu) * parseInt(response.data.rate) / 100 : 0;
+            _this.gjz_cal_type = parseInt(response.data.gongjianzhi_calculation_type);
             //console.log(_this.gjzMagnification);
           }
         },
@@ -655,8 +661,7 @@ export default {
 
       // if (response.result == 1) {
       this.goodsInfo = data;
-      this.nprice = this.goodsInfo.has_option == 1 ? (this.goodsInfo.min_price == this.goodsInfo.max_price ? this.goodsInfo.max_price : this.goodsInfo.min_price + "-" + this.goodsInfo.max_price) : this.goodsInfo.price;
-
+      this.nprice = this.goodsInfo.has_option == 1 ? this.goodsInfo.min_price : this.goodsInfo.price;
       if (this.fun.getPhoneEnv() == 3) {
         this.getDetailData();
         this.showPageB = true;

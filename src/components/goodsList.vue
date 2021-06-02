@@ -31,7 +31,7 @@
               </div>
             </template>
             <template v-else>
-              <p style="font-size:12px;">赠送<span style="color:#f15353;font-weight:bold;">{{ accMul(item.price , gjzMagnification) }}</span>共建值</p>
+              <p style="font-size:12px;">赠送<span style="color:#f15353;font-weight:bold;">{{ accMul(item.price , item.cost_price, gjzMagnification) }}</span>共建值</p>
               <div class="s2">
                 <span v-if="parseInt(item.market_price) && item.market_price != item.price">{{ market_price }} {{ $i18n.t("money") }}{{ item.market_price }}</span>
               </div>
@@ -220,6 +220,7 @@ export default {
       market_price: "", //原价
       integral: window.localStorage.getItem("integral") || "积分",
       gjzMagnification: 0,//共建值倍率
+      gjz_cal_type:0,//共建值计算方式0表示按商品价格计，1表示按商品利润计算
     };
   },
   components: { yzGoodsposter },
@@ -302,8 +303,10 @@ export default {
   },
   methods: {
     //共建值计算
-    accMul(arg1,arg2){
-      console.log(arg2);
+    accMul(arg1,cost_price,arg2){
+      if(this.gjz_cal_type == 1){
+        arg1 = arg1 - cost_price;
+      }
       var m=0,s1=arg1.toString(),s2=arg2.toString();
       try{m+=s1.split(".")[1].length;}catch(e){
         //
@@ -311,7 +314,7 @@ export default {
       try{m+=s2.split(".")[1].length;}catch(e){
         //
       }
-      return Number(s1.replace(".",""))*Number(s2.replace(".",""))/Math.pow(10,m);
+      return (Number(s1.replace(".",""))*Number(s2.replace(".",""))/Math.pow(10,m)).toFixed(2);
     },
     //获取共建值倍率
     getGjzMagnification() {
@@ -322,13 +325,15 @@ export default {
           console.log(response);
           if(response.result == 1 && response.data){
             _this.gjzMagnification = parseInt(response.data.beishu) * parseInt(response.data.rate) / 100 ? parseInt(response.data.beishu) * parseInt(response.data.rate) / 100 : 0;
-            console.log(_this.gjzMagnification);
+            _this.gjz_cal_type = parseInt(response.data.gongjianzhi_calculation_type);
+            //console.log(_this.gjzMagnification);
           }
         },
         function(response) {
           console.log(response);
         }
       );
+      console.log(this.goods);
     },
     //获取滚动条当前的位置
     getScrollTop() {
@@ -391,6 +396,7 @@ export default {
                 }
                 var myData = response.data.data;
                 that.goods = that.goods.concat(myData);
+
                 // that.$store.commit('setDefaultMoreData', myData);
               } else {
                 that.page = that.page - 1;
